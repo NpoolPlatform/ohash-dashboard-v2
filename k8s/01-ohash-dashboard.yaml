@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        app: ohash-dashboardv2
+        app: ohash-dashboard-v2
     spec:
       containers:
         - name: ohash-dashboard-v2
