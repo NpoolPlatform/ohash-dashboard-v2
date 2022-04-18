@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: procyon-dashboard-v2-treafik-ingress
+  name: ohash-dashboard-v2-treafik-ingress
   namespace: kube-system
   annotations:
-    k8s.kuboard.cn/displayName: procyon-dashboard-v2-treafik
-    k8s.kuboard.cn/workload: procyon-dashboard-v2-treafik
+    k8s.kuboard.cn/displayName: ohash-dashboard-v2-treafik
+    k8s.kuboard.cn/workload: ohash-dashboard-v2-treafik
     kubernetes.io/ingress.class: "traefik-internet"
     traefik.ingress.kubernetes.io/router.entrypoints: websecure, web
     traefik.ingress.kubernetes.io/router.middlewares: kube-system-http-redirect-https@kubernetescrd,
@@ -15,18 +15,13 @@ metadata:
 spec:
   tls:
     - hosts:
-        - dashboard.procyon.vip
-      secretName: procyon-vip-cert
-    - hosts:
-        - procdashboard.npool.top
-      secretName: npool-top-cert
+        - dashboard.ohhash.com
+      secretName: ohhash-com-cert
   rules:
-    - host: dashboard.procyon.vip
-      http: &http_rules
+    - host: dashboard.ohhash.com
+      http:
         paths:
           - path: /
             backend:
-              serviceName: procyon-dashboard-v2
+              serviceName: ohash-dashboard-v2
               servicePort: 80
-    - host: procdashboard.npool.top
-      http: *http_rules

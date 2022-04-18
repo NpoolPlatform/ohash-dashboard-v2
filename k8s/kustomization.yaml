@@ -1,6 +1,6 @@
 commonLabels:
-  # app: procyon-dashboard-v2
+  # app: ohash-dashboard-v2
 
 resources:
-  - 01-procyon-dashboard-v2.yaml
+  - 01-ohash-dashboard.yaml
   - 02-traefik-ingress.yaml
