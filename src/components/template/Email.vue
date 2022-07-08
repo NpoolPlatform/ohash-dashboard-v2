@@ -7,7 +7,7 @@
     row-key='ID'
     :loading='emailLoading'
     :rows-per-page-options='[20]'
-    @row-click='(evt, row, index) => onRowClick(row as EmailTemplate)'
+    @row-click='(evt, row, index) => onRowClick(row as MyEmailTemplate)'
   >
     <template #top-right>
       <div class='row indent flat'>
@@ -58,8 +58,33 @@ import { computed, onMounted, ref, defineAsyncComponent, watch } from 'vue'
 
 const LangSwitcher = defineAsyncComponent(() => import('src/components/lang/LangSwitcher.vue'))
 
+interface MyEmailTemplate {
+  ID: string
+  LangID: string
+  DefaultToUsername: string
+  UsedFor: string
+  Sender: string
+  ReplyTos: string
+  CCTos: string
+  Subject: string
+  Body: string
+}
+
 const templates = useTemplateStore()
-const emails = computed(() => templates.EmailTemplates)
+const appEmails = computed(() => templates.EmailTemplates)
+const emails = computed(() => Array.from(appEmails.value).map((el) => {
+  return {
+    ID: el.ID,
+    LangID: el.LangID,
+    DefaultToUsername: el.DefaultToUsername,
+    UsedFor: el.UsedFor,
+    Sender: el.Sender,
+    ReplyTos: el.ReplyTos.join(','),
+    CCTos: el.CCTos.join(','),
+    Subject: el.Subject,
+    Body: el.Body
+  } as MyEmailTemplate
+}))
 const emailLoading = ref(true)
 
 onMounted(() => {
@@ -82,17 +107,32 @@ const updating = ref(false)
 
 const target = ref({} as unknown as EmailTemplate)
 const replyTos = ref(target.value?.ReplyTos?.join(','))
+const myTarget = ref({} as unknown as MyEmailTemplate)
+watch(myTarget, () => {
+  target.value = {
+    ID: myTarget.value.ID,
+    LangID: myTarget.value.LangID,
+    DefaultToUsername: myTarget.value.DefaultToUsername,
+    UsedFor: myTarget.value.UsedFor,
+    Sender: myTarget.value.Sender,
+    ReplyTos: myTarget.value.ReplyTos?.split(','),
+    CCTos: myTarget.value.CCTos?.split(','),
+    Subject: myTarget.value.Subject,
+    Body: myTarget.value.Body
+  } as EmailTemplate
+})
+
 watch(replyTos, () => {
-  target.value.ReplyTos = replyTos.value.split(',')
+  target.value.ReplyTos = replyTos.value?.split(',')
 })
 const ccTos = ref(target.value?.CCTos?.join(','))
 watch(replyTos, () => {
-  target.value.CCTos = ccTos.value.split(',')
+  target.value.CCTos = ccTos.value?.split(',')
 })
 
 const language = ref(undefined as unknown as Language)
 watch(language, () => {
-  target.value.LangID = language.value.ID
+  target.value.LangID = language.value?.ID
 })
 
 const onMenuHide = () => {
@@ -100,8 +140,8 @@ const onMenuHide = () => {
   target.value = {} as unknown as EmailTemplate
 }
 
-const onRowClick = (template: EmailTemplate) => {
-  target.value = template
+const onRowClick = (template: MyEmailTemplate) => {
+  myTarget.value = template
   showing.value = true
   updating.value = true
 }
@@ -132,7 +172,7 @@ const onSubmit = () => {
   }
 
   templates.createEmailTemplate({
-    TargetLangID: language.value.ID,
+    TargetLangID: language.value?.ID,
     Info: target.value,
     Message: {
       Error: {
